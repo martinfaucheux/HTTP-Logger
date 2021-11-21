@@ -5,6 +5,11 @@ from io import IOBase
 from typing import Optional
 
 
+def get_section(request: str) -> str:
+    route = request.split(" ")[1]
+    return "/" + route[1:].split("/", 1)[0]
+
+
 class Monitor:
     def __init__(
         self, file_obj, warning_threshold: int = 10, period_length: int = 10
@@ -13,16 +18,10 @@ class Monitor:
         self.period_length = period_length
         self.warning_threshold = warning_threshold
 
-        self.start_time: Optional[int] = None
-        self.period_start_time: Optional[int] = None
-        self.period_request_count: int = 0
-        self.total_request_count: int = 0
-
         self.ip_pattern = re.compile(r"\d+\.\d+\.\d+\.\d+")
 
-        self.alert_start: Optional[int] = None
-
         self.current_period: Optional[Period] = None
+        self.sliding_period = SlidingPeriod()  # TODO: pass params
 
     def start(self) -> None:
 
@@ -44,8 +43,9 @@ class Monitor:
                     self.current_period = Period(date, length=self.period_length)
 
                 self.current_period.add(request)
+                self.sliding_period.add(date)
 
-    def is_valid_line(self, line: list[str]):
+    def is_valid_line(self, line: list[str]) -> bool:
         """only check if first element is an IP address"""
         return self.ip_pattern.match(line[0])
 
@@ -58,21 +58,58 @@ class Period:
 
         self.hits = defaultdict(int)
 
-    def add(self, request: str):
-        section = self.get_section(request)
+    def add(self, request: str) -> None:
+        section = get_section(request)
         self.hits[section] += 1
         self.request_count += 1
 
-    def print_report(self):
+    def print_report(self) -> None:
         most_hit = max(self.hits, key=self.hits.get)
         hit_count = self.hits[most_hit]
         percent = round(100 * hit_count / self.request_count, 2)
-
         print(f"most hit: {most_hit} {hit_count} ({percent}%)")
-
-    def get_section(self, request: str):
-        route = request.split(" ")[1]
-        return "/" + route[1:].split("/", 1)[0]
 
     def is_included(self, date: int) -> bool:
         return date < self.start_date + self.length
+
+
+class SlidingPeriod:
+    def __init__(self, time_window=120, max_rate=10):
+        self.time_window = time_window
+        self.max_rate = max_rate
+        # self.min_date: Optional[int] = None
+        # self.max_date: Optional[int] = None
+        self.is_alert: bool = False
+        self.watched_count = 0
+
+        # TODO: make it a queue instead
+        self.watched_requests: list[int] = []
+
+    def add(self, date: int):
+        index = 0
+        for watched_date in self.watched_requests:
+            if watched_date > date - self.time_window:
+                break
+            index += 1
+
+        self.watched_requests = self.watched_requests[index:] + [date]
+        self.watched_count += 1 - index
+
+        # print(self.current_rate)
+        self.check_warning()
+
+    def check_warning(self):
+
+        is_above_limit = self.current_rate >= self.max_rate
+
+        if is_above_limit and not self.is_alert:
+            self.is_alert = True
+            print("WARNING")
+
+        elif not is_above_limit and self.is_alert:
+            self.is_alert = False
+            print("END WARNING")
+
+    @property
+    def current_rate(self):
+        return self.watched_count / self.time_window
