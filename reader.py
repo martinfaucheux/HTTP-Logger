@@ -9,17 +9,18 @@ from typing import Optional
 class Monitor:
     def __init__(
         self,
-        file_obj,
+        file_obj: IOBase,
         display_period: int = 10,
         max_rate: int = 10,
         watch_window: int = 120,
     ) -> None:
         self.file_obj = file_obj
+        print(type(file_obj))
         self.period_length = display_period
 
         self.ip_pattern = re.compile(r"\d+\.\d+\.\d+\.\d+")
 
-        self.current_period: Optional[Period] = None
+        self.current_period = DisplayPeriod(length=display_period)
         self.sliding_period = SlidingPeriod(time_window=watch_window, max_rate=max_rate)
 
     def start(self) -> None:
@@ -33,15 +34,12 @@ class Monitor:
                 # TODO: check type first
                 date = int(date)
 
-                if self.current_period is None:
-                    self.current_period = Period(date, length=self.period_length)
-
-                elif not self.current_period.is_included(date):
+                if not self.current_period.is_included(date):
                     self.current_period.print_report()
-                    self.current_period = Period(date, length=self.period_length)
+                    self.current_period = DisplayPeriod(length=self.period_length)
 
                 section = self.get_section(request)
-                self.current_period.add(section)
+                self.current_period.add(date, section)
                 self.sliding_period.add(date)
 
     def is_valid_line(self, line: list[str]) -> bool:
@@ -54,15 +52,17 @@ class Monitor:
         return "/" + route[1:].split("/", 1)[0]
 
 
-class Period:
-    def __init__(self, start_date: int, length: int = 10) -> None:
-        self.start_date = start_date
+class DisplayPeriod:
+    def __init__(self, length: int = 10) -> None:
+        self.start_date: Optional[int] = None
         self.length = length
         self.request_count: int = 0
-
         self.hits = defaultdict(int)
 
-    def add(self, section: str) -> None:
+    def add(self, date: int, section: str) -> None:
+        if self.start_date is None:
+            self.start_date = date
+
         self.hits[section] += 1
         self.request_count += 1
 
@@ -73,7 +73,7 @@ class Period:
         print(f"most hit: {most_hit} {hit_count} ({percent}%)")
 
     def is_included(self, date: int) -> bool:
-        return date < self.start_date + self.length
+        return self.start_date is None or date < self.start_date + self.length
 
 
 class SlidingPeriod:
