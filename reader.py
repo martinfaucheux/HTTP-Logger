@@ -8,16 +8,19 @@ from typing import Optional
 
 class Monitor:
     def __init__(
-        self, file_obj, warning_threshold: int = 10, period_length: int = 10
+        self,
+        file_obj,
+        display_period: int = 10,
+        max_rate: int = 10,
+        watch_window: int = 120,
     ) -> None:
         self.file_obj = file_obj
-        self.period_length = period_length
-        self.warning_threshold = warning_threshold
+        self.period_length = display_period
 
         self.ip_pattern = re.compile(r"\d+\.\d+\.\d+\.\d+")
 
         self.current_period: Optional[Period] = None
-        self.sliding_period = SlidingPeriod()  # TODO: pass params
+        self.sliding_period = SlidingPeriod(time_window=watch_window, max_rate=max_rate)
 
     def start(self) -> None:
 
@@ -77,12 +80,9 @@ class SlidingPeriod:
     def __init__(self, time_window=120, max_rate=10):
         self.time_window = time_window
         self.max_rate = max_rate
-        # self.min_date: Optional[int] = None
-        # self.max_date: Optional[int] = None
         self.is_alert: bool = False
         self.watched_count = 0
 
-        # TODO: make it a queue instead
         self.watched_requests: list[int] = []
 
     def add(self, date: int) -> None:
