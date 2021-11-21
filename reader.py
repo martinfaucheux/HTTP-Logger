@@ -5,11 +5,6 @@ from io import IOBase
 from typing import Optional
 
 
-def get_section(request: str) -> str:
-    route = request.split(" ")[1]
-    return "/" + route[1:].split("/", 1)[0]
-
-
 class Monitor:
     def __init__(
         self, file_obj, warning_threshold: int = 10, period_length: int = 10
@@ -29,7 +24,6 @@ class Monitor:
 
         for row in csvreader:
             if self.is_valid_line(row):
-                # print(row)
                 remotehost, rfc931, authuser, date, request, status, bytes_count = row
 
                 # TODO: check type first
@@ -42,12 +36,18 @@ class Monitor:
                     self.current_period.print_report()
                     self.current_period = Period(date, length=self.period_length)
 
-                self.current_period.add(request)
+                section = self.get_section(request)
+                self.current_period.add(section)
                 self.sliding_period.add(date)
 
     def is_valid_line(self, line: list[str]) -> bool:
         """only check if first element is an IP address"""
         return self.ip_pattern.match(line[0])
+
+    @staticmethod
+    def get_section(request: str) -> str:
+        route = request.split(" ")[1]
+        return "/" + route[1:].split("/", 1)[0]
 
 
 class Period:
@@ -58,8 +58,7 @@ class Period:
 
         self.hits = defaultdict(int)
 
-    def add(self, request: str) -> None:
-        section = get_section(request)
+    def add(self, section: str) -> None:
         self.hits[section] += 1
         self.request_count += 1
 
@@ -85,7 +84,7 @@ class SlidingPeriod:
         # TODO: make it a queue instead
         self.watched_requests: list[int] = []
 
-    def add(self, date: int):
+    def add(self, date: int) -> None:
         index = 0
         for watched_date in self.watched_requests:
             if watched_date > date - self.time_window:
@@ -95,21 +94,22 @@ class SlidingPeriod:
         self.watched_requests = self.watched_requests[index:] + [date]
         self.watched_count += 1 - index
 
-        # print(self.current_rate)
-        self.check_warning()
+        self.check_warning(date)
 
-    def check_warning(self):
+    def check_warning(self, date: int) -> None:
 
         is_above_limit = self.current_rate >= self.max_rate
 
         if is_above_limit and not self.is_alert:
             self.is_alert = True
-            print("WARNING")
+            print(
+                f"High traffic generated an alert - hits = {self.watched_count}, triggered at {date}"
+            )
 
         elif not is_above_limit and self.is_alert:
             self.is_alert = False
-            print("END WARNING")
+            print(f"Traffic went back to normal at {date}")
 
     @property
-    def current_rate(self):
+    def current_rate(self) -> float:
         return self.watched_count / self.time_window
