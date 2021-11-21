@@ -1,6 +1,7 @@
 import csv
 import re
 from collections import defaultdict
+from datetime import datetime
 from io import IOBase
 from typing import Optional
 
@@ -99,16 +100,17 @@ class SlidingPeriod:
     def check_warning(self, date: int) -> None:
 
         is_above_limit = self.current_rate >= self.max_rate
+        date_obj = datetime.fromtimestamp(date)
 
         if is_above_limit and not self.is_alert:
             self.is_alert = True
             print(
-                f"High traffic generated an alert - hits = {self.watched_count}, triggered at {date}"
+                f"High traffic generated an alert - hits = {self.watched_count}, triggered at {date_obj}"
             )
 
         elif not is_above_limit and self.is_alert:
             self.is_alert = False
-            print(f"Traffic went back to normal at {date}")
+            print(f"Traffic went back to normal at {date_obj}")
 
     @property
     def current_rate(self) -> float:
