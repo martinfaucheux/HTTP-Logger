@@ -29,16 +29,12 @@ class Monitor:
 
         for row in csvreader:
             if self.is_valid_line(row):
-                remotehost, rfc931, authuser, date, request, status, bytes_count = row
+                remotehost, rfc931, authuser, str_date, request, status, bytes_count = row
 
                 # TODO: check type first
-                date = int(date)
-
-                if not self.current_period.is_included(date):
-                    self.current_period.print_report()
-                    self.current_period = RecurrentPeriod(time_window=self.period_length)
-
+                date = int(str_date)
                 section = self.get_section(request)
+
                 self.current_period.add(date, section)
                 self.sliding_period.add(date)
 

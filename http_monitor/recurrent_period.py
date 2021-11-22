@@ -18,7 +18,11 @@ class RecurrentPeriod:
 
     def add(self, date: int, section: str) -> None:
         if self.start_date is None:
+            # when first element is added
             self.start_date = date
+        elif not self.is_included(date):
+            self.print_report()
+            self.reset(date)
 
         self.hits[section] += 1
         self.request_count += 1

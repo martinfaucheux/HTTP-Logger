@@ -5,7 +5,7 @@ from http_monitor.sliding_period import SlidingPeriod
 from tests.utils import captured_output
 
 
-class SlidingPeriodTest(unittest.TestCase):
+class SlidingPeriodAlertTest(unittest.TestCase):
     def test_sliding_period_one_date_no(self):
 
         sp = SlidingPeriod(time_window=120, max_rate=1)
@@ -67,6 +67,8 @@ class SlidingPeriodTest(unittest.TestCase):
                 sp.add(100)
             self.assertEqual(out.getvalue().strip(), "")
 
+
+class SlidingPeriodDisplayTest(unittest.TestCase):
     def test_assert_trigger_alert_message_content(self):
 
         sp = SlidingPeriod(time_window=120, max_rate=1)
