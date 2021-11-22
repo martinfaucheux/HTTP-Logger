@@ -45,7 +45,7 @@ class SlidingPeriod:
         """
 
         is_above_limit = self.current_rate >= self.max_rate
-        date_obj = datetime.fromtimestamp(date)
+        date_obj = datetime.utcfromtimestamp(date)
 
         if is_above_limit and not self.is_alert:
             self.is_alert = True

@@ -77,7 +77,7 @@ class SlidingPeriodDisplayTest(unittest.TestCase):
                 sp.add(100)
             self.assertEqual(
                 out.getvalue().strip(),
-                "High traffic generated an alert - hits = 120, triggered at 1970-01-01 07:01:40",
+                "High traffic generated an alert - hits = 120, triggered at 1970-01-01 00:01:40",
             )
 
     def test_assert_recover_alert_message_content(self):
@@ -90,7 +90,7 @@ class SlidingPeriodDisplayTest(unittest.TestCase):
             sp.add(241)
             self.assertEqual(
                 out.getvalue().strip(),
-                "Traffic went back to normal at 1970-01-01 07:04:01",
+                "Traffic went back to normal at 1970-01-01 00:04:01",
             )
 
     def test_assert_no_duplicate_message_long_event(self):
@@ -101,5 +101,5 @@ class SlidingPeriodDisplayTest(unittest.TestCase):
                 sp.add(100)
             self.assertEqual(
                 out.getvalue().strip(),
-                "High traffic generated an alert - hits = 120, triggered at 1970-01-01 07:01:40",
+                "High traffic generated an alert - hits = 120, triggered at 1970-01-01 00:01:40",
             )
