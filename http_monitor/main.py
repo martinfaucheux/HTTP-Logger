@@ -1,10 +1,10 @@
 import argparse
 import sys
 
-from reader import Monitor
+from monitor import Monitor
 
-if __name__ == "__main__":
 
+def cli():
     # Create the parser
     # TODO: improve comments
     arg_parser = argparse.ArgumentParser(description="Run the logger")
@@ -46,3 +46,7 @@ if __name__ == "__main__":
         max_rate=parser_args.maxrate,
         watch_window=parser_args.window,
     ).start()
+
+
+if __name__ == "__main__":
+    cli()
