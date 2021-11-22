@@ -3,7 +3,7 @@ import re
 from collections import defaultdict
 from datetime import datetime
 from io import IOBase
-from typing import Optional
+from typing import List, Optional
 
 
 class Monitor:
@@ -42,7 +42,7 @@ class Monitor:
                 self.current_period.add(date, section)
                 self.sliding_period.add(date)
 
-    def is_valid_line(self, line: list[str]) -> bool:
+    def is_valid_line(self, line: List[str]) -> bool:
         """only check if first element is an IP address"""
         return self.ip_pattern.match(line[0])
 
@@ -83,7 +83,7 @@ class SlidingPeriod:
         self.is_alert: bool = False
         self.watched_count = 0
 
-        self.watched_requests: list[int] = []
+        self.watched_requests: List[int] = []
 
     def add(self, date: int) -> None:
         index = 0
