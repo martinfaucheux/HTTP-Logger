@@ -15,7 +15,6 @@ class Monitor:
         watch_window: int = 120,
     ) -> None:
         self.file_obj = file_obj
-        print(type(file_obj))
         self.period_length = display_period
 
         self.ip_pattern = re.compile(r"\d+\.\d+\.\d+\.\d+")
