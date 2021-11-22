@@ -16,3 +16,14 @@ def captured_output():
         yield sys.stdout, sys.stderr
     finally:
         sys.stdout, sys.stderr = old_out, old_err
+
+
+def prepare_buffer(csv_data=None):
+    """
+    helper to prepare buffer and add optional data for tests
+    """
+    buffer = StringIO()
+    if csv_data is not None:
+        buffer.write(csv_data)
+        buffer.seek(0)
+    return buffer

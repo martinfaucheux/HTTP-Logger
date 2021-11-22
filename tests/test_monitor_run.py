@@ -1,15 +1,16 @@
-import io
 import unittest
 
 from http_monitor.monitor import Monitor
 
-from tests.utils import captured_output
+from tests.utils import captured_output, prepare_buffer
+
+DATA_DIR = "tests/data/"
 
 
-class MonitorRunTest(unittest.TestCase):
+class MonitorDisplayTest(unittest.TestCase):
     def test_monitor_empty_log(self):
 
-        buffer = self._get_buffer()
+        buffer = prepare_buffer()
         monitor = Monitor(buffer)
 
         with captured_output() as (out, err):
@@ -17,7 +18,7 @@ class MonitorRunTest(unittest.TestCase):
             self.assertEqual(out.getvalue().strip(), "")
 
     def test_monitor_one_line(self):
-        buffer = self._get_buffer(
+        buffer = prepare_buffer(
             '"10.0.0.2","-","apache",1549573860,"GET /api/user HTTP/1.0",200,1234'
         )
         monitor = Monitor(buffer)
@@ -26,21 +27,17 @@ class MonitorRunTest(unittest.TestCase):
             monitor.start()
             self.assertEqual(out.getvalue().strip(), "")
 
-    def test_monitor_two_line_20s_interval(self):
-        buffer = self._get_buffer(
-            '"10.0.0.2","-","apache",1549573860,"GET /api/user HTTP/1.0",200,1234\n'
-            '"10.0.0.2","-","apache",1549579000,"GET /report/4425 HTTP/1.0",200,1256'
-        )
-        monitor = Monitor(buffer)
+    def test_monitor_several_lines(self):
 
-        with captured_output() as (out, err):
-            monitor.start()
-            self.assertEqual(out.getvalue().strip(), "most hit: /api 1 (100.0%)")
+        with open(DATA_DIR + "expected_output.txt") as fileobj:
+            expected_message = fileobj.read()
 
-    @staticmethod
-    def _get_buffer(csv_data=None):
-        buffer = io.StringIO()
-        if csv_data is not None:
-            buffer.write(csv_data)
-            buffer.seek(0)
-        return buffer
+        with open(DATA_DIR + "sample_log.txt") as fileobj:
+            with captured_output() as (out, err):
+                monitor = Monitor(
+                    fileobj, display_period=10, watch_window=10, max_rate=1
+                )
+                monitor.start()
+                displayed_message = out.getvalue().strip()
+
+        self.assertEqual(displayed_message, expected_message)
