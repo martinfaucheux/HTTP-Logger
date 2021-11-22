@@ -50,7 +50,7 @@ class SlidingPeriod:
         if is_above_limit and not self.is_alert:
             self.is_alert = True
             print(
-                f"High traffic generated an alert - hits = {self.watched_count}, triggered at {date_obj}"
+                f"High traffic generated an alert - hits = {self.current_rate:.2f}, triggered at {date_obj}"
             )
 
         elif not is_above_limit and self.is_alert:
