@@ -1,7 +1,7 @@
 import argparse
 import sys
 
-from monitor import Monitor
+from http_monitor.monitor import Monitor
 
 
 def cli():
