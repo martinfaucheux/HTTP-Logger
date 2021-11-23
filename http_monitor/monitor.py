@@ -44,12 +44,21 @@ class Monitor:
 
     def is_valid_line(self, line: List[str]) -> bool:
         """only check if first element is an IP address"""
-        return self.ip_pattern.match(line[0])
+        if len(line) >= 5:
+            ip, _, _, str_date, request = line[:5]
+            return (
+                self.ip_pattern.match(ip)
+                and str_date.isdigit()
+                and len(request.split(" ")) == 3
+            )
+
+        return False
 
     @staticmethod
     def get_section(request: str) -> str:
         """
         Extract the section of the request endpoint
+        e.g. "GET /api/user HTTP/1.0" -> "/api"
         """
         route = request.split(" ")[1]
         return "/" + route[1:].split("/", 1)[0]
