@@ -64,5 +64,4 @@ class SlidingPeriod:
         """
         return the current number of request per seconds (mean within time window)
         """
-        # TODO: fix this in case the the run time is less than 2min
         return self.watched_count / self.time_window

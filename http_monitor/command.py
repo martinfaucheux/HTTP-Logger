@@ -5,12 +5,14 @@ from http_monitor.monitor import Monitor
 
 
 def cli():
-    # Create the parser
-    # TODO: improve comments
-    arg_parser = argparse.ArgumentParser(description="Run the logger")
+    arg_parser = argparse.ArgumentParser(description="Run http log monitoring tool")
 
     arg_parser.add_argument(
-        "file", nargs="?", type=argparse.FileType("r"), default=sys.stdin
+        "file",
+        nargs="?",
+        type=argparse.FileType("r"),
+        default=sys.stdin,
+        help="csv file to read the http log from",
     )
 
     arg_parser.add_argument(
@@ -39,9 +41,8 @@ def cli():
 
     parser_args = arg_parser.parse_args(sys.argv[1:])
 
-    file_arg = parser_args.file
     Monitor(
-        file_obj=file_arg,
+        file_obj=parser_args.file,
         display_period=parser_args.period,
         max_rate=parser_args.maxrate,
         watch_window=parser_args.window,

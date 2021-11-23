@@ -35,7 +35,6 @@ class Monitor:
             if self.is_valid_line(row):
                 (_, _, _, str_date, request, _, _) = row
 
-                # TODO: check type first
                 date = int(str_date)
                 section = self.get_section(request)
 
