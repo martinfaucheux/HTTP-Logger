@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 
 class SlidingPeriod:
@@ -16,6 +16,7 @@ class SlidingPeriod:
         self.max_rate = max_rate
         self.is_alert: bool = False
         self.watched_count = 0
+        self.last_date: Optional[int]  # last date added
 
         self.watched_requests: List[int] = []
 
@@ -36,6 +37,7 @@ class SlidingPeriod:
         self.watched_count += 1 - index
 
         self.check_warning(date)
+        self.last_date = date
 
     def check_warning(self, date: int) -> None:
         """
@@ -43,18 +45,18 @@ class SlidingPeriod:
         or recovered
         `date`: date that should show in the warning message
         """
-
         is_above_limit = self.current_rate >= self.max_rate
-        date_obj = datetime.utcfromtimestamp(date)
 
         if is_above_limit and not self.is_alert:
             self.is_alert = True
+            date_obj = datetime.utcfromtimestamp(date)
             print(
                 f"High traffic generated an alert - hits = {self.current_rate:.2f}, triggered at {date_obj}"
             )
 
         elif not is_above_limit and self.is_alert:
             self.is_alert = False
+            date_obj = datetime.utcfromtimestamp(self.last_date)
             print(f"Traffic went back to normal at {date_obj}")
 
     @property

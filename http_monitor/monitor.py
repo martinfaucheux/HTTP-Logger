@@ -43,7 +43,7 @@ class Monitor:
                 self.sliding_period.add(date)
 
     def is_valid_line(self, line: List[str]) -> bool:
-        """only check if first element is an IP address"""
+        """check that the csv line read can be interpreted as http request"""
         if len(line) >= 5:
             ip, _, _, str_date, request = line[:5]
             return (
@@ -51,7 +51,6 @@ class Monitor:
                 and str_date.isdigit()
                 and len(request.split(" ")) == 3
             )
-
         return False
 
     @staticmethod
