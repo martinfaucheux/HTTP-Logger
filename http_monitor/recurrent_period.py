@@ -17,6 +17,12 @@ class RecurrentPeriod:
         self.hits = defaultdict(int)
 
     def add(self, date: int, section: str) -> None:
+        """
+        Register a section in the current period.
+        If the date exceeds the window, output a report an reset the period
+        `date`: date of the current request
+        `section`: section to be added to the period
+        """
         if self.start_date is None:
             # when first element is added
             self.start_date = date
@@ -28,11 +34,17 @@ class RecurrentPeriod:
         self.request_count += 1
 
     def reset(self, date: int) -> None:
+        """
+        reset internal state of the period
+        """
         self.start_date = date
         self.request_count = 0
         self.hits = defaultdict(int)
 
     def print_report(self) -> None:
+        """
+        Output most hit endpoint, number of hits and the percentage against other requests.
+        """
         most_hit = max(self.hits, key=self.hits.get)
         hit_count = self.hits[most_hit]
         percent = round(100 * hit_count / self.request_count, 2)
