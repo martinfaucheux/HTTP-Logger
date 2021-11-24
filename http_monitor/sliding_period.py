@@ -3,15 +3,16 @@ from typing import List, Optional
 
 
 class SlidingPeriod:
-    """
-    Data structure which store the dates of the last request within the specified time window.
-    When adding an element, this will display an alert if
-    the mean rate is above specified level
-    `time_window`: used to compute the mean request per seconds
-    `max_rate`: number of request per seconds to update the alert status
-    """
-
     def __init__(self, time_window: int = 120, max_rate: int = 10):
+        """
+        Data structure which store the dates of the last request within the specified time window.
+        When adding an element, this will display an alert if
+        the mean rate is above specified level
+
+        Args:
+            time_window (int, optional): used to compute the mean request per seconds. Defaults to 120.
+            max_rate (int, optional): number of request per seconds to update the alert status. Defaults to 10.
+        """
         self.time_window = time_window
         self.max_rate = max_rate
         self.is_alert: bool = False
@@ -25,7 +26,9 @@ class SlidingPeriod:
         Add a date to the period. This will
         - remove the dates exceed the specified window
         - trigger an alert if the mean rate is above specified level
-        `date`: date to be added in the period
+
+        Args:
+            date (int): unix timestamp to be added in the period
         """
         index = 0
         for watched_date in self.watched_requests:
@@ -43,7 +46,9 @@ class SlidingPeriod:
         """
         update the alert status and display a message if the alert is trigger
         or recovered
-        `date`: date that should show in the warning message
+
+        Arts:
+            date (int): unix timestamp that should show in the warning message
         """
         is_above_limit = self.current_rate >= self.max_rate
 

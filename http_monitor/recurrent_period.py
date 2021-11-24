@@ -3,14 +3,15 @@ from typing import Optional
 
 
 class RecurrentPeriod:
-    """
-    Data structure which store request counts within the specified time window.
-    If a date exceeds the current start date, this will empty the counts and start from 0
-    when this appens, this will display the section with the most hit, number of requests and the time of current request
-    `time_window`: time period to gather count and display information
-    """
-
     def __init__(self, time_window: int = 10) -> None:
+        """
+        Data structure which store request counts within the specified time window.
+        If a date exceeds the current start date, this will empty the counts and start from 0
+        when this appens, this will display the section with the most hit, number of requests and the time of current request
+
+        Args:
+            time_window (int, optional): time period to gather count and display information. Defaults to 10.
+        """
         self.start_date: Optional[int] = None
         self.time_window = time_window
         self.request_count: int = 0
@@ -19,9 +20,10 @@ class RecurrentPeriod:
     def add(self, date: int, section: str) -> None:
         """
         Register a section in the current period.
-        If the date exceeds the window, output a report an reset the period
-        `date`: date of the current request
-        `section`: section to be added to the period
+
+        Args:
+            date (int): unix timestamp of the current request
+            section (str): section to be added to the period
         """
         if self.start_date is None:
             # when first element is added
