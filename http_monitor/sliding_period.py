@@ -56,7 +56,8 @@ class SlidingPeriod:
             self.is_alert = True
             date_obj = datetime.utcfromtimestamp(date)
             print(
-                f"High traffic generated an alert - hits = {self.current_rate:.2f}, triggered at {date_obj}"
+                f"High traffic generated an alert - hits = {self.watched_count} "
+                f"({self.current_rate:.2f} rps), triggered at {date_obj}"
             )
 
         elif not is_above_limit and self.is_alert:
